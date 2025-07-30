@@ -1,254 +1,277 @@
-# L&TT Planner Backend
+# SME Planner Backend
 
-A Spring Boot REST API for managing user schedules in the Learning & Talent Transformation team at EduLearnOrg with role-based access control.
+A Spring Boot REST API backend for the Learning & Training Team (L&TT) SME (Subject Matter Expert) Planner application. This system helps manage SME activities, schedules, and resource planning.
+
+## Table of Contents
+
+- [SME Planner Backend](#sme-planner-backend)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Tech Stack](#tech-stack)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+    - [Key Configuration Properties](#key-configuration-properties)
+  - [Running the Application](#running-the-application)
+    - [Using Maven](#using-maven)
+    - [Using VS Code Task](#using-vs-code-task)
+    - [Using JAR file](#using-jar-file)
+  - [API Documentation](#api-documentation)
+    - [Main API Endpoints](#main-api-endpoints)
+  - [Database Schema](#database-schema)
+  - [Authentication](#authentication)
+    - [User Roles](#user-roles)
+  - [Development](#development)
+    - [Project Structure](#project-structure)
+    - [Adding New Features](#adding-new-features)
+    - [Code Style](#code-style)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Support](#support)
+  - [Version History](#version-history)
 
 ## Features
 
-- **Role-Based Access Control**: Support for three user roles - SME, Supervisor, and Lead
-- **User Management**: Create, update, and manage users with different roles
-- **Activity Management**: Manage different types of training activities with categories and durations
-- **SME Activity Grouping**: Track and analyze SME activities by categories with automatic grouping
-- **Activity Categories**: Support for predefined activity categories (Calendar Training, Blended, etc.)
-- **Duration Handling**: Fixed and variable duration activities with automatic time tracking
-- **Schedule Management**: Create, update, and delete user schedules
-- **Availability Search**: Find available users for specific dates and times
-- **Conflict Detection**: Automatic detection of scheduling conflicts
-- **Analytics**: Monthly activity distribution and performance metrics for SMEs
-- **RESTful API**: Full REST API following OpenAPI 3.0 specification
-- **JWT Authentication**: Secure authentication with JSON Web Tokens
+- **User Management**: User registration, authentication, and role-based access control
+- **Activity Management**: Create, update, and manage SME activities
+- **Schedule Planning**: Schedule activities and manage SME availability
+- **Monthly Effort Tracking**: Track and report monthly effort allocations
+- **Activity Groups**: Organize activities into groups for better management
+- **JWT Authentication**: Secure API endpoints with JWT tokens
+- **RESTful APIs**: Well-structured REST endpoints for all operations
+- **Swagger Documentation**: Interactive API documentation
 
-## Activity Categories
+## Tech Stack
 
-The system supports the following predefined activity categories with specific durations:
+- **Framework**: Spring Boot 3.5.4
+- **Language**: Java 17
+- **Database**: MySQL 8.0+
+- **Security**: Spring Security with JWT
+- **Documentation**: SpringDoc OpenAPI (Swagger)
+- **Build Tool**: Maven
+- **ORM**: Spring Data JPA with Hibernate
 
-### Fixed Duration Activities
+## Prerequisites
 
-- **Lateral Calendar Training Full Day**: 9.0 hours
-- **Lateral Calendar Training Half Day**: 4.5 hours  
-- **Blended Learning**: 2.0 hours
-- **Adhoc Training**: 4.5 hours
-- **Byte sized**: 2.0 hours
-
-### Variable Duration Activities
-
-- **Content Development**: Variable duration based on requirements
-- **Evaluation**: Variable duration based on assessment needs
-- **Skill Upgrade**: Variable duration based on training scope
-- **Program and Session Planning**: Variable duration for management activities
-- **Time Off Categories**: Public Holiday, Leave, Location Holiday, Optional Holiday
-
-## SME Activity Grouping
-
-The system automatically groups SME activities by:
-
-- **Category**: Activities are grouped by their predefined categories
-- **Monthly Tracking**: Activities are tracked on a monthly basis (YYYY-MM format)
-- **Performance Metrics**: Total hours allocated, session counts, and analytics
-- **Automatic Processing**: When schedules are created for SMEs, activity groupings are automatically updated
-
-## User Roles
-
-### SME (Subject Matter Expert)
-
-- Can view activities
-- Can manage their own schedules
-- Can view their own profile
-
-### Supervisor
-
-- All SME permissions
-- Can view all SMEs
-- Can view SME schedules
-- Can assign activities to SMEs
-
-### Lead
-
-- All Supervisor permissions
-- Can manage all users (create, update, delete)
-- Can change user roles
-- Can view all system data
-- Full administrative access
-
-## Technology Stack
-
-- **Java 17**
-- **Spring Boot 3.2.0**
-- **Spring Data JPA**
-- **Spring Security with JWT**
-- **H2 Database** (in-memory for development)
-- **MySQL** (for production)
-- **Maven** for dependency management
-
-## Getting Started
-
-### Prerequisites
+Before running the application, ensure you have:
 
 - Java 17 or higher
-- Maven 3.6 or higher
+- Maven 3.6+
+- MySQL 8.0+
+- Git
 
-### Running the Application
+## Installation
 
-1. Clone the repository
-2. Navigate to the project directory
-3. Run the application:
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd ltt-sme-planner-backend
+   ```
+
+2. **Set up MySQL Database**
+
+   ```sql
+   CREATE DATABASE `ltt-sme-planner`;
+   ```
+
+3. **Configure Environment Variables**
+
+   Set the following environment variables or update `application.properties`:
+
+   ```bash
+   export MYSQL_PASSWORD=your_mysql_password
+   export JWT_SECRET=your_jwt_secret_key
+   export JWT_EXPIRATION=86400000
+   ```
+
+## Configuration
+
+The application uses the following configuration files:
+
+- `application.properties`: Main configuration file
+- `application-mysql.properties`: MySQL-specific configuration
+- `schema.sql`: Database schema initialization
+- `data.sql`: Sample data initialization
+
+### Key Configuration Properties
+
+```properties
+# Server Configuration
+server.port=8080
+
+# Database Configuration
+spring.datasource.url=jdbc:mysql://localhost:3306/ltt-sme-planner
+spring.datasource.username=root
+spring.datasource.password=${MYSQL_PASSWORD}
+
+# JWT Configuration
+jwt.secret=${JWT_SECRET}
+jwt.expiration=${JWT_EXPIRATION:86400000}
+
+# Swagger Configuration
+springdoc.swagger-ui.path=/ltt-sme-planner/v1/swagger-ui.html
+```
+
+## Running the Application
+
+### Using Maven
+
+1. **Build the application**
+
+   ```bash
+   mvn clean compile
+   ```
+
+2. **Run the application**
 
    ```bash
    mvn spring-boot:run
    ```
 
+### Using VS Code Task
+
+If you're using VS Code, you can use the pre-configured task:
+
+- Open Command Palette (Ctrl+Shift+P)
+- Type "Tasks: Run Task"
+- Select "Build and Run Spring Boot App"
+
+### Using JAR file
+
+1. **Build JAR**
+
+   ```bash
+   mvn clean package
+   ```
+
+2. **Run JAR**
+
+   ```bash
+   java -jar target/sme-planner-backend-1.0.0.jar
+   ```
+
 The application will start on `http://localhost:8080`
 
-### Database Access
+## API Documentation
 
-- **H2 Console**: `http://localhost:8080/h2-console`
-  - JDBC URL: `jdbc:h2:mem:testdb`
-  - Username: `sa`
-  - Password: `password`
+Once the application is running, you can access:
 
-## API Endpoints
+- **Swagger UI**: <http://localhost:8080/ltt-sme-planner/v1/swagger-ui.html>
+- **API Docs**: <http://localhost:8080/ltt-sme-planner/v1/api-docs>
 
-### Authentication
+### Main API Endpoints
 
-- `POST /ltt-sme-planner/v1/auth/login` - User login (returns JWT token)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/auth/login` | POST | User authentication |
+| `/auth/register` | POST | User registration |
+| `/users` | GET/POST/PUT/DELETE | User management |
+| `/activities` | GET/POST/PUT/DELETE | Activity management |
+| `/schedules` | GET/POST/PUT/DELETE | Schedule management |
+| `/monthly-effort` | GET/POST | Monthly effort tracking |
+| `/sme-activity-groups` | GET/POST/PUT/DELETE | Activity group management |
+| `/user-availability` | GET/POST/PUT/DELETE | User availability management |
 
-### Activities
+## Database Schema
 
-- `GET /ltt-sme-planner/v1/activities` - Get all activities (All roles)
-- `POST /ltt-sme-planner/v1/activities` - Create new activity (Lead only)
-- `PUT /ltt-sme-planner/v1/activities/{id}` - Update activity (Lead only)
-- `DELETE /ltt-sme-planner/v1/activities/{id}` - Delete activity (Lead only)
+The application uses the following main entities:
 
-### SME Activity Grouping API
+- **Users**: SME user information and authentication
+- **Activities**: Available activities for scheduling
+- **Schedules**: Scheduled activities for users
+- **Monthly Effort**: Monthly effort tracking
+- **SME Activity Groups**: Activity grouping
+- **User Availability**: User availability tracking
 
-- `GET /ltt-sme-planner/v1/sme-activities/sme/{smeUserId}` - Get all activity groups for an SME
-- `GET /ltt-sme-planner/v1/sme-activities/sme/{smeUserId}/month/{monthYear}` - Get activity groups for SME and month
-- `GET /ltt-sme-planner/v1/sme-activities/sme/{smeUserId}/distribution/{monthYear}` - Get activity distribution by category
-- `GET /ltt-sme-planner/v1/sme-activities/sme/{smeUserId}/total-hours/{monthYear}` - Get total hours for SME and month
-- `GET /ltt-sme-planner/v1/sme-activities/sme/{smeUserId}/category/{category}/hours/{monthYear}` - Get hours by category
-- `GET /ltt-sme-planner/v1/sme-activities/activities/category/{category}` - Get activities by category
-- `GET /ltt-sme-planner/v1/sme-activities/activities/fixed-duration` - Get fixed duration activities
-- `GET /ltt-sme-planner/v1/sme-activities/activities/variable-duration` - Get variable duration activities
-- `GET /ltt-sme-planner/v1/sme-activities/month/{monthYear}/active-smes` - Get active SMEs for a month
-- `GET /ltt-sme-planner/v1/sme-activities/categories` - Get all activity categories
+The database schema is automatically created from `schema.sql` and populated with sample data from `data.sql`.
 
-### User Management
+## Authentication
 
-- `GET /ltt-sme-planner/v1/users` - Get all users (Lead only)
-- `GET /ltt-sme-planner/v1/users/smes` - Get all SMEs (Supervisor, Lead)
-- `GET /ltt-sme-planner/v1/users/supervisors` - Get all Supervisors (Lead only)
-- `GET /ltt-sme-planner/v1/users/{id}` - Get user by ID (Supervisor, Lead)
-- `POST /ltt-sme-planner/v1/admin/users` - Create new user (Lead only)
-- `PUT /ltt-sme-planner/v1/admin/users/{id}/role` - Update user role (Lead only)
-- `DELETE /ltt-sme-planner/v1/admin/users/{id}` - Delete user (Lead only)
+The application uses JWT (JSON Web Tokens) for authentication:
 
-### Schedules (Future endpoints)
+1. **Register/Login**: Get JWT token from `/auth/login` or `/auth/register`
+2. **Authorization Header**: Include token in requests:
 
-- `GET /ltt-sme-planner/v1/schedules?month=YYYY-MM` - Get schedules by month (for current user)
-- `GET /ltt-sme-planner/v1/schedules/sme/{smeId}?month=YYYY-MM` - Get schedules for any SME by ID
-- `POST /ltt-sme-planner/v1/schedules` - Create new schedule
-- `PUT /ltt-sme-planner/v1/schedules/{id}` - Update schedule
-- `DELETE /ltt-sme-planner/v1/schedules/{id}` - Delete schedule
+   ```http
+   Authorization: Bearer <your-jwt-token>
+   ```
 
-### SME Management
+3. **Token Expiration**: Default expiration is 24 hours (configurable)
 
-- `GET /ltt-sme-planner/v1/smes/by-email?email={email}` - Get SME details by email
+### User Roles
 
-### SME Availability
-
-- `GET /ltt-sme-planner/v1/smes/availability?date=YYYY-MM-DD&fromTime=HH:MM:SS&toTime=HH:MM:SS` - Search available SMEs
-- `GET /ltt-sme-planner/v1/smes/{id}/availability?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD` - Get SME availability
-
-## Sample Data
-
-The application loads predefined activities automatically including:
-
-### Predefined Activities with Categories and Durations
-
-- **Lateral Calendar Training Full Day** (Calendar Training - 9.0 hours)
-- **Lateral Calendar Training Half Day** (Calendar Training - 4.5 hours)
-- **Blended Learning** (Blended - 2.0 hours)
-- **Adhoc Training** (Adhoc Training - 4.5 hours)
-- **Byte sized** (Byte Sized - 2.0 hours)
-- **Content Development** (Content Development - Variable)
-- **Evaluation** (Evaluation - Variable)
-- **Skill Upgrade** (Skill Upgrade - Variable)
-- **Program and Session Planning** (Management - Variable)
-- **Public Holiday** (Time Off - Variable)
-- **Leave** (Time Off - Variable)
-- **Location Holiday** (Time Off - Variable)
-- **Optional Holiday** (Time Off - Variable)
-
-### Sample Users
-
-- 6 users with different roles (SME, Supervisor, Lead)
-- Sample schedules for testing SME activity grouping
-
-## API Authentication
-
-**Note**: For development purposes, authentication is currently disabled. In production, implement proper JWT authentication.
+- **ADMIN**: Full access to all resources
+- **SME**: Access to own resources and limited system features
+- **MANAGER**: Extended access for team management
 
 ## Development
 
 ### Project Structure
 
-```java
+```text
 src/
 ├── main/
 │   ├── java/com/edulearnorg/ltt/smeplanner/
-│   │   ├── SmePlannerBackendApplication.java
-│   │   ├── config/
-│   │   │   └── SecurityConfig.java
-│   │   ├── controller/
-│   │   │   ├── ActivityController.java
-│   │   │   ├── ScheduleController.java
-│   │   │   └── SMEController.java
-│   │   ├── dto/
-│   │   │   ├── AvailableTimeSlots.java
-│   │   │   ├── ErrorResponse.java
-│   │   │   ├── ScheduleCreateRequest.java
-│   │   │   ├── SMEAvailability.java
-│   │   │   └── TimeSlot.java
-│   │   ├── entity/
-│   │   │   ├── Activity.java
-│   │   │   ├── Schedule.java
-│   │   │   └── SME.java
-│   │   ├── repository/
-│   │   │   ├── ActivityRepository.java
-│   │   │   ├── ScheduleRepository.java
-│   │   │   └── SMERepository.java
-│   │   └── service/
-│   │       ├── ActivityService.java
-│   │       └── ScheduleService.java
+│   │   ├── config/          # Configuration classes
+│   │   ├── controller/      # REST controllers
+│   │   ├── dto/            # Data Transfer Objects
+│   │   ├── entity/         # JPA entities
+│   │   ├── enums/          # Enumerations
+│   │   ├── exception/      # Custom exceptions
+│   │   ├── repository/     # Data repositories
+│   │   ├── service/        # Business logic
+│   │   └── util/           # Utility classes
 │   └── resources/
 │       ├── application.properties
+│       ├── schema.sql
 │       └── data.sql
+└── test/                   # Test classes
 ```
 
-### Building
+### Adding New Features
 
-```bash
-mvn clean compile
-```
+1. Create entity in `entity/` package
+2. Create repository in `repository/` package
+3. Create service in `service/` package
+4. Create DTOs in `dto/` package
+5. Create controller in `controller/` package
+6. Add tests in `test/` package
 
-### Testing
+### Code Style
 
-```bash
-mvn test
-```
-
-### Packaging
-
-```bash
-mvn clean package
-```
+- Follow Java naming conventions
+- Use Spring Boot best practices
+- Add proper validation annotations
+- Include comprehensive JavaDoc comments
+- Write unit and integration tests
 
 ## Contributing
 
-1. Follow the existing code style and patterns
-2. Use constructor injection for dependencies
-3. Add appropriate validation and error handling
-4. Update documentation for any API changes
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/new-feature`
+3. Commit changes: `git commit -am 'Add new feature'`
+4. Push to branch: `git push origin feature/new-feature`
+5. Create a Pull Request
 
 ## License
 
-This project is proprietary to EduLearnOrg L&TT team.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Support
+
+For support and questions:
+
+- Create an issue in the GitHub repository
+- Contact the development team
+- Check the API documentation for usage examples
+
+## Version History
+
+- **1.0.0**: Initial release with core SME planning functionality
+
+---
+
+Built with ❤️ by jjtomar
