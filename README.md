@@ -12,10 +12,12 @@ A Spring Boot REST API backend for the Learning & Training Team (L&TT) SME (Subj
   - [Installation](#installation)
   - [Configuration](#configuration)
     - [Key Configuration Properties](#key-configuration-properties)
-  - [Running the Application](#running-the-application)
-    - [Using Maven](#using-maven)
-    - [Using VS Code Task](#using-vs-code-task)
-    - [Using JAR file](#using-jar-file)
+   - [Running the Application](#running-the-application)
+      - [Using Maven](#using-maven)
+      - [Using VS Code Task](#using-vs-code-task)
+      - [Using JAR file](#using-jar-file)
+   - [Docker](#docker)
+   - [Docker Compose](#docker-compose)
   - [API Documentation](#api-documentation)
     - [Main API Endpoints](#main-api-endpoints)
   - [Database Schema](#database-schema)
@@ -152,6 +154,60 @@ If you're using VS Code, you can use the pre-configured task:
    ```
 
 The application will start on `http://localhost:8080`
+
+## Docker
+
+Build and run the service in Docker (Windows cmd examples):
+
+```cmd
+REM Build image
+docker build -t ltt-sme-planner-backend:1.0.0 .
+
+REM Run container (assumes MySQL is running on host at 3306)
+docker run --name ltt-sme-planner \
+   -p 8080:8080 \
+   -e MYSQL_PASSWORD=your_mysql_password \
+   -e JWT_SECRET=your_secret \
+   -e JWT_EXPIRATION=86400000 \
+   --add-host=host.docker.internal:host-gateway \
+   ltt-sme-planner-backend:1.0.0
+```
+
+Notes:
+
+- The app connects to MySQL at `localhost:3306` per `application.properties`. From inside Docker on Windows, `localhost` generally maps to the container itself; use `host.docker.internal` if connecting to the host DB.
+- Override the JDBC URL at runtime with `SPRING_DATASOURCE_URL` if your DB is elsewhere, for example:
+
+```cmd
+docker run -p 8080:8080 \
+   -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/ltt-sme-planner \
+   -e MYSQL_PASSWORD=your_mysql_password \
+   ltt-sme-planner-backend:1.0.0
+```
+
+## Docker Compose
+
+Spin up MySQL and the app together:
+
+```cmd
+REM Optional: copy env template
+copy .env.example .env
+
+REM Build images and start services
+docker compose up -d --build
+
+REM View logs
+docker compose logs -f app
+
+REM Stop and remove services
+docker compose down
+```
+
+Notes:
+
+- MySQL data is persisted in the `db_data` volume.
+- App connects to the `mysql` service via the internal network with JDBC URL set by `SPRING_DATASOURCE_URL` in `docker-compose.yml`.
+- Update `.env` to customize credentials and secrets.
 
 ## API Documentation
 

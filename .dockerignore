@@ -1,0 +1,21 @@
+# Maven
+target/
+.mvn/
+
+# Git
+.git/
+.gitignore
+
+# IDEs and OS
+.vscode/
+target/
+.mvn/
+.git/
+.gitignore
+.vscode/
+.idea/
+*.iml
+*.log
+.DS_Store
+Thumbs.db
+node_modules/
